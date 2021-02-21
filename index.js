@@ -12,8 +12,12 @@ app.use(
 
 //This is the route the API will call
 app.post('/', function(req, res) {
+  console.log('req --->', req)
+  console.log('res --->', res)
   const { message } = req.body;
-
+  if(!message.text){
+    return res.end()
+  }
   const random = (times, diceFaces) => {
     let dicesThrow =[];
     for (let i = 0; i < times; i++){
@@ -23,8 +27,8 @@ app.post('/', function(req, res) {
   }
   //check if is from a group msg
 
-  if( message.text.substring(0,1) === '/'){
-    if(message.text.substring(1,2).toLowerCase() === 'v'){
+  if( message.text && message.text.substring(0,1) === '/'){
+    if(message.text && message.text.substring(1,2).toLowerCase() === 'v'){
       //the comnad is for vampire dice throw
       const command = message.text.toLowerCase().split('v')[1];
       const result = random(command, 10)
@@ -39,7 +43,7 @@ app.post('/', function(req, res) {
 
       let msg = '';
 
-      if (finalResult <= 0){
+      if (finalResult <= 0 && successDice >= 0){
         msg = '😥¡ FALLO !😥'
       } else if(successDice === 0 && failDices > 0 ){
         msg = '😱 ¡ PIFIA ! 😱'
@@ -49,15 +53,13 @@ app.post('/', function(req, res) {
 
       return axios
       .post(
-        'https://api.telegram.org/bot1038391098:AAEVVAa3cLSasRUsyTuhwIgqvL5WWF1Lpkw/sendMessage',
+        `${process.env.BOT_URL}/sendMessage`,
         {
           chat_id: message.chat.id,
           text:`
             Resultados de la tirada: ${result.sort(function(a, b) {
               return a - b;
-            })} \n
-            Tirada normal: ${msg} \n
-            Tirada comabte (sin pifias) ${successDice} éxitos
+            })} \n Tirada normal:\n  ${msg} \n Tirada combate (sin pifias): \n  ${successDice} éxitos
           `
         }
       )
