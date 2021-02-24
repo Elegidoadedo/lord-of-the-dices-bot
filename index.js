@@ -12,8 +12,6 @@ app.use(
 
 //This is the route the API will call
 app.post('/', function(req, res) {
-  console.log('req --->', req)
-  console.log('res --->', res)
   const { message } = req.body;
   if(!message.text){
     return res.end()
